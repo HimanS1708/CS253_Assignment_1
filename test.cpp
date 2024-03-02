@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <windows.h>
 
 using namespace std;
 
@@ -59,16 +60,18 @@ class Customer : public User{
 		//Clear dues
 		void clear_due(){
 			string amt;
-			int amount=0;
+			double amount=0;
 			bool valid=0;
 			while(!valid){
 				cout<<"Enter the amount you want to clear...\n\n";
 				cin>>amt;
 				if(amt=="q") return;
-				for(int i=0;i<amt.size();i++){
-					amount=(10*amount)+(amt[i]-48);
+				
+				amount = string_to_double(amt);
+				if(amount==-1){
+					cout<<"Invalid amount! Try again...\n\n";
 				}
-				if(amount<=0 || amount>fine_due){
+				else if(amount<=0 || amount>fine_due){
 					cout<<"Invalid amount! Try again...\n\n";
 				}
 				else{
@@ -76,6 +79,8 @@ class Customer : public User{
 				}
 			}
 			fine_due-=amount;
+			
+			cout<<"\nSuccessfully cleared from due the given amount.\n\n";
 		}
 		
 		//Return a car
@@ -273,14 +278,18 @@ class Employee : public User{
 		//Clear dues
 		void clear_due(){
 			string amt;
-			int amount;
+			double amount=0;
 			bool valid=0;
 			while(!valid){
 				cout<<"Enter the amount you want to clear...\n\n";
 				cin>>amt;
 				if(amt=="q") return;
-				amount=stoi(amt);
-				if(amount<=0 || amount>fine_due){
+				
+				amount = string_to_double(amt);
+				if(amount==-1){
+					cout<<"Invalid amount! Try again...\n\n";
+				}
+				else if(amount<=0 || amount>fine_due){
 					cout<<"Invalid amount! Try again...\n\n";
 				}
 				else{
@@ -288,6 +297,8 @@ class Employee : public User{
 				}
 			}
 			fine_due-=amount;
+			
+			cout<<"\nSuccessfully cleared from due the given amount.\n\n";
 		}
 		
 		//Return a car
@@ -446,7 +457,7 @@ class Employee : public User{
 };
 
 class Manager : public User{
-	public:	
+	public:
 		Manager(string name,string password){
 			this->name=name;
 			this->password=password;
@@ -465,6 +476,7 @@ class Car{
 		string type_of_owner;
 		string owner_name;
 		double price;
+		// time_t time_rented;
 		
 		Car(string model,string condition,double price){
 			this->model=model;
@@ -474,6 +486,7 @@ class Car{
 			this->type_of_owner="NA";
 			this->owner_name="NA";
 			this->price=price;
+			// this->time_rented=0;
 			
 			car_count++;
 		}
@@ -486,8 +499,8 @@ vector<Car> car;
 
 //View rented Cars
 void view_rented_cars(char role,int id){
-	cout<<"\n\n\n------------------------------\n";
-	cout<<"  | ID - Model - Condition |  \n";
+	cout<<"\n\n\n--------------------------------------\n";
+	cout<<"  | ID - Model - Price - Condition |  \n";
 	
 	ifstream Database;
 	Database.open("car_database.txt");
@@ -533,7 +546,7 @@ void view_rented_cars(char role,int id){
 						break;
 					}
 				}
-				cout<<"  | "<<car[ind2].id<<" - "<<car[ind2].model<<" - "<<car[ind2].condition<<" |  \n";
+				cout<<"  | "<<car[ind2].id<<" - "<<car[ind2].model<<" - $"<<car[ind2].price<<" - "<<car[ind2].condition<<" |  \n";
 			}
 		}
 	}
@@ -578,12 +591,12 @@ void view_rented_cars(char role,int id){
 						break;
 					}
 				}
-				cout<<"  | "<<car[ind2].id<<" - "<<car[ind2].model<<" - "<<car[ind2].condition<<" |  \n";
+				cout<<"  | "<<car[ind2].id<<" - "<<car[ind2].model<<" - $"<<car[ind2].price<<" - "<<car[ind2].condition<<" |  \n";
 			}
 		}
 	}
 	
-	cout<<"------------------------------\n\n\n";
+	cout<<"--------------------------------------\n\n\n";
 }
 
 //Function for checking name and password
@@ -653,7 +666,7 @@ int check_name_password(string name,string password,char role,int size){
 	}
 }
 
-//Function for viewing all Cars
+//Function for viewing all Cars for Customers and Employees
 void view_cars(){
 	bool f=0;
 	for(int i=0;i<car.size();i++){
@@ -668,12 +681,12 @@ void view_cars(){
 		return;
 	}
 	
-	cout<<"\n\n\n------------------------------\n";
-	cout<<"  | ID - Model - Condition |\n";
+	cout<<"\n\n\n--------------------------------------\n";
+	cout<<"  | ID - Model - Price - Condition |\n";
 	for(int i=0;i<car.size();i++){
-		if(car[i].availibity=="Available") cout<<"  | "<<car[i].id<<" - "<<car[i].model<<" - "<<car[i].condition<<" |\n";
+		if(car[i].availibity=="Available") cout<<"  | "<<car[i].id<<" - "<<car[i].model<<" - $"<<car[i].price<<" - "<<car[i].condition<<" |\n";
 	}
-	cout<<"------------------------------\n\n\n";
+	cout<<"--------------------------------------\n\n\n";
 }
 
 //Checks if the id is valid
@@ -683,7 +696,6 @@ bool update_car_status(int id,char role,string name){
 	
 	for(int i=0;i<car.size();i++){
 		if(car[i].id==id && car[i].availibity=="Rented"){
-			cout<<"Car with that ID is not available.\n\n";
 			return 0;
 		}
 	}
@@ -800,7 +812,7 @@ bool rent_car(char role,string name,int self_id){
 		valid = update_car_status(id,role,name);
 		
 		if(!valid){
-			cout<<"Invalid car ID :(\n\n";
+			cout<<"\nInvalid car ID :(\n\n";
 			return 0;
 		}
 		else{
@@ -830,7 +842,7 @@ bool rent_car(char role,string name,int self_id){
 					}
 				}
 			}
-			cout<<"Successfully rented car... Come back again :)\n\n";
+			cout<<"\nSuccessfully rented car... Come back again :)\n\n";
 			success=1;
 			return 1;
 		}
@@ -1031,10 +1043,14 @@ bool customer_func(){
 			case '5':
 			{
 				//Rent available Cars
+				if(curr_cust.cars_rented >= curr_cust.customer_record/2){
+					cout<<"Your record is not good enough to rent a car.\n";
+					break;
+				}
+				
 				bool success = 0;
 				success = rent_car('c',curr_cust.name,curr_cust.id);
 				if(success){
-					cout<<"\n\nSuccessfully rented Car.\n";
 					for(int i=0;i<cust.size();i++){
 						if(cust[i].id==curr_cust.id){
 							curr_cust=cust[i];
@@ -1051,6 +1067,8 @@ bool customer_func(){
 				int success = 0;
 				success = curr_cust.return_request();
 				if(success>=0){
+					cout<<"\n\nSuccessfully returned Car.\n";
+					
 					for(int i=0;i<car.size();i++){
 						if(car[i].id==success){
 							car[i].availibity="Available";
@@ -1080,6 +1098,8 @@ bool customer_func(){
 		}
 	}
 	
+	Sleep(500);
+	system("cls");
 	user_role();
 }
 
@@ -1167,10 +1187,14 @@ bool employee_func(){
 			case '5':
 			{
 				//Rent available Cars
+				if(curr_emp.cars_rented >= curr_emp.employee_record/2){
+					cout<<"Your record is not good enough to rent a car.\n";
+					break;
+				}
+				
 				bool success = 0;
 				success = rent_car('e',curr_emp.name,curr_emp.id);
 				if(success){
-					cout<<"\n\nSuccessfully rented Car.\n";
 					for(int i=0;i<emp.size();i++){
 						if(emp[i].id==curr_emp.id){
 							curr_emp=emp[i];
@@ -1187,6 +1211,8 @@ bool employee_func(){
 				int success = 0;
 				success = curr_emp.return_request();
 				if(success>=0){
+					cout<<"\n\nSuccessfully returned Car.\n";
+					
 					for(int i=0;i<car.size();i++){
 						if(car[i].id==success){
 							car[i].availibity="Available";
@@ -1216,6 +1242,8 @@ bool employee_func(){
 		}
 	}
 	
+	Sleep(500);
+	system("cls");
 	user_role();
 }
 
@@ -1225,19 +1253,19 @@ void view_all(string type){
 	if(type=="car"){
 		cout<<"| ID - Model - Condition - Availability - Price - Role of Owner - Name |\n";
 		for(int i=0;i<car.size();i++){
-			cout<<"| "<<car[i].id<<" - "<<car[i].model<<" - "<<car[i].condition<<" - "<<car[i].availibity<<" - "<<car[i].price<<" - "<<car[i].type_of_owner<<" - "<<car[i].owner_name<<" |\n";
+			cout<<"| "<<car[i].id<<" - "<<car[i].model<<" - "<<car[i].condition<<" - "<<car[i].availibity<<" - $"<<car[i].price<<" - "<<car[i].type_of_owner<<" - "<<car[i].owner_name<<" |\n";
 		}
 	}
 	else if(type=="customer"){
 		cout<<"|ID - Name - Password - Customer Record - Cars rented - Fine due|\n";
 		for(int i=0;i<cust.size();i++){
-			cout<<"|"<<cust[i].id<<" - "<<cust[i].name<<" - "<<cust[i].password<<" - "<<cust[i].customer_record<<" - "<<cust[i].cars_rented<<" - "<<cust[i].fine_due<<"|\n";
+			cout<<"|"<<cust[i].id<<" - "<<cust[i].name<<" - "<<cust[i].password<<" - "<<cust[i].customer_record<<" - "<<cust[i].cars_rented<<" - $"<<cust[i].fine_due<<"|\n";
 		}
 	}
 	else if(type=="employee"){
 		cout<<"|ID - Name - Password - Employee Record - Cars rented - Fine due|\n";
 		for(int i=0;i<emp.size();i++){
-			cout<<"|"<<emp[i].id<<" - "<<emp[i].name<<" - "<<emp[i].password<<" - "<<emp[i].employee_record<<" - "<<emp[i].cars_rented<<" - "<<emp[i].fine_due<<"|\n";
+			cout<<"|"<<emp[i].id<<" - "<<emp[i].name<<" - "<<emp[i].password<<" - "<<emp[i].employee_record<<" - "<<emp[i].cars_rented<<" - $"<<emp[i].fine_due<<"|\n";
 		}
 	}
 	else{
@@ -2114,6 +2142,8 @@ bool manager_func(){
 		}
 	}
 	
+	Sleep(500);
+	system("cls");
 	user_role();
 }
 
@@ -2187,6 +2217,7 @@ void user_role(){
 	}
 }
 
+//Converts string to integer
 int string_to_int(string s){
 	bool valid = 1;
 	for(int i=0;i<s.size();i++){
@@ -2206,6 +2237,7 @@ int string_to_int(string s){
 	return val;
 }
 
+//Converts double to integer
 double string_to_double(string s){
 	bool valid = 1;
 	int cnt = 0;
@@ -2252,7 +2284,7 @@ void load_cars(){
 		
 		if(line.size()<2) continue;
 		
-		string sid="",smodel="",scondition="",savailibility="",sprice="",stype_of_owner="",sowner_name="";
+		string sid="",smodel="",scondition="",savailibility="",sprice="",stype_of_owner="",sowner_name="",stime="";
 		int i;
 		int ind;
 		ind=line.find("-");
@@ -2296,14 +2328,23 @@ void load_cars(){
 			sowner_name+=line[i];
 		}
 		
+		// i++;
+		// ind=i;
+		// for(i=ind;i<line.size();i++){
+		// 	stime+=line[i];
+		// }
+		
 		int id = string_to_int(sid);
 		double price = string_to_double(sprice);
+		// int time = string_to_int(stime);
+		// cout<<time<<"H\n";
 		
 		Car New_Car(smodel,scondition,price);
 		New_Car.id = id;
 		New_Car.availibity = savailibility;
 		New_Car.type_of_owner = stype_of_owner;
 		New_Car.owner_name = sowner_name;
+		// New_Car.time_rented = time;
 		
 		car.push_back(New_Car);
 		
@@ -2530,8 +2571,6 @@ int main(){
 	
 	//Creating Dummy Data for Manager Database
 	Manager Manager_1("Manager","admin@123");
-	
-	//Har user ko apna rented car assign kar do
 	
 	//Welcome Screen
 	cout<<"\t\t------ Welcome! ------\n\n\n";
