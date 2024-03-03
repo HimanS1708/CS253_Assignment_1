@@ -427,8 +427,8 @@ class Employee : public User{
 				
 				this->cars_rented--;
 				this->id_cars_rented.erase(id);
-				this->fine_due+=((curr_time-time_rented-604800)/604800)*500;
-				this->employee_record-=((curr_time-time_rented-604800)/604800)*0.1;
+				this->fine_due+=((curr_time-time_rented-604800)/604800)*250;
+				this->employee_record-=((curr_time-time_rented-604800)/604800)*0.05;
 				this->employee_record=max(this->employee_record,0.0);
 				success = 1;
 				
@@ -1351,6 +1351,14 @@ void add(string type){
 		cin.ignore();
 		getline(cin,model);
 		
+		for(int i=0;i<car.size();i++){
+			if(car[i].model == model){
+				cout<<"Name already taken. Try something else...\n";
+				Database.close();
+				return;
+			}
+		}
+		
 		if(model=="q") return;
 		
 		bool valid = 0;
@@ -1431,7 +1439,7 @@ void add(string type){
 		Database.open("emp_database.txt", ios::app);
 		
 		string name,password;
-		cout<<"Enter the name of the emp.\n\n";
+		cout<<"Enter the name of the employee.\n\n";
 		cin.ignore();
 		getline(cin,name);
 		
@@ -1647,7 +1655,7 @@ void update(string type){
 					}
 				}
 				
-				string name,password;
+				string name,password,scustomer_record;
 				double customer_record;
 				cout<<"Enter new name.\n\n";
 				cin.ignore();
@@ -1658,8 +1666,26 @@ void update(string type){
 				cout<<"Enter new password. (Make sure it does not have whitespace)\n\n";
 				cin>>password;
 				
-				cout<<"Enter new customer record.\n\n";
-				cin>>customer_record;
+				bool is_valid = 0;
+				bool first = 0;
+				while(!is_valid){
+					cout<<"Enter new customer record.\n\n";
+					if(!first){
+						cin.ignore();
+						first = 1;
+					}
+					getline(cin,scustomer_record);
+					
+					customer_record = string_to_double(scustomer_record);
+					
+					if(customer_record==-1){
+						cout<<"Invalid format. Retry...\n";
+						continue;
+					}
+					
+					is_valid = 1;
+				}
+				
 				Customer New_Customer(name,password);
 				
 				cust.push_back(New_Customer);
@@ -1735,7 +1761,7 @@ void update(string type){
 					}
 				}
 				
-				string name,password;
+				string name,password,semployee_record;
 				double employee_record;
 				cout<<"Enter new name.\n\n";
 				cin.ignore();
@@ -1746,8 +1772,26 @@ void update(string type){
 				cout<<"Enter new password. (Make sure it does not have whitespace)\n\n";
 				cin>>password;
 				
-				cout<<"Enter new customer record.\n\n";
-				cin>>employee_record;
+				bool is_valid = 0;
+				bool first = 0;
+				while(!is_valid){
+					cout<<"Enter new employee record.\n\n";
+					if(!first){
+						cin.ignore();
+						first = 1;
+					}
+					getline(cin,semployee_record);
+					
+					employee_record = string_to_double(semployee_record);
+				
+					if(employee_record==-1){
+						cout<<"Invalid format. Retry...\n";
+						continue;
+					}
+					
+					is_valid = 1;
+				}
+				
 				Employee New_Employee(name,password);
 				
 				emp.push_back(New_Employee);
@@ -2458,6 +2502,8 @@ void load_cars(){
 		lines.push_back(line);
 	}
 	
+	if(lines.empty()) return;
+	
 	string final_id="";
 	string lline=lines[lines.size()-1];
 	int lind=lline.find("-");
@@ -2554,6 +2600,8 @@ void load_customers(){
 		lines.push_back(line);
 	}
 	
+	if(lines.empty()) return;
+	
 	string final_id="";
 	string lline=lines[lines.size()-1];
 	int lind=lline.find("-");
@@ -2649,6 +2697,8 @@ void load_employees(){
 		
 		lines.push_back(line);
 	}
+	
+	if(lines.empty()) return;
 	
 	string final_id="";
 	string lline=lines[lines.size()-1];
