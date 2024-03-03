@@ -1,7 +1,7 @@
 <h1>How to run?</h1>
 
 - Save the files in a directory, say `x`.
-- Open your termianal and go to directory `x`.
+- Open your terminal and go to directory `x`.
 - Type the following commands in the terminal:
   
   ```
