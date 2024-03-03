@@ -1,0 +1,5 @@
+0-Model 1-Good-Available-20000-NA-NA-0
+1-Model 2-Good-Available-30000-NA-NA-0
+2-Model 3-Good-Available-40000-NA-NA-0
+3-Model 4-Good-Available-50000-NA-NA-0
+4-Model 5-Good-Available-60000-NA-NA-0
