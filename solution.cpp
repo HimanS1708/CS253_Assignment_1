@@ -2735,5 +2735,7 @@ int main(){
 	//Ask for user role
 	user_role();
 	
+	// cin.get();
+	
 	return 0;
 }
