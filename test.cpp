@@ -9,6 +9,7 @@ void view_cars();
 void view_rented_cars(fstream &Database,char role,int id);
 int string_to_int(string s);
 double string_to_double(string s);
+long int string_to_long(string s);
 
 //Create classes
 class User{
@@ -109,37 +110,8 @@ class Customer : public User{
 					continue;
 				}
 				
-				bool day_success=0;
-				
-				string sdays="";
-				while(!day_success){
-					cout<<"Enter days after which you are returning the car.\n\n";
-					cin>>sdays;
-					
-					if(sdays=="q"){
-						exit=1;
-						return -1;
-					}
-					
-					bool valid = 1;
-					for(int i=0;i<sdays.size();i++){
-						if((int)sdays[i]<48 || (int)sdays[i]>57){
-							valid=0;
-							break;
-						}
-					}
-					
-					if(!valid){
-						cout<<"Invalid number of days.\n\n";
-						continue;
-					}
-					
-					day_success=1;
-				}
-				
-				for(int i=0;i<sdays.size();i++){
-					days=(10*days)+(sdays[i]-48);
-				}
+				time_t curr_time = time(NULL);
+				time_t time_rented = 0;
 				
 				ifstream Database;
 				Database.open("car_database.txt");
@@ -167,6 +139,7 @@ class Customer : public User{
 					string tprice="";
 					string ttype_of_owner="NA";
 					string towner_name="NA";
+					string ttime="";
 
 					for(i=0;i<ind1;i++){
 						lid+=line[i];
@@ -199,9 +172,29 @@ class Customer : public User{
 						tprice+=line[i];
 					}
 					
+					i++;
+					ind1=i;
+					
+					for(i=ind1;line[i]!='-';i++){
+					}
+					
+					i++;
+					ind1=i;
+					
+					for(i=ind1;line[i]!='-';i++){
+					}
+					
+					i++;
+					ind1=i;
+					
+					for(i=ind1;i<line.size();i++){
+						ttime+=line[i];
+					}
+					
 					if(lid==sid){
-						string tline="";						
-						tline+=lid+"-"+tmodel+"-"+tcondition+"-"+tavailability+"-"+tprice+"-"+ttype_of_owner+"-"+towner_name;
+						string tline="";
+						time_rented = string_to_long(ttime);						
+						tline+=lid+"-"+tmodel+"-"+tcondition+"-"+tavailability+"-"+tprice+"-"+ttype_of_owner+"-"+towner_name+"-0";
 						lines.push_back(tline);
 					}
 					else{
@@ -226,11 +219,9 @@ class Customer : public User{
 				
 				this->cars_rented--;
 				this->id_cars_rented.erase(id);
-				if(days>7){
-					this->fine_due+=(days-7)*500;
-					this->customer_record-=(days-7)*0.1;
-					this->customer_record=max(this->customer_record,0.0);
-				}
+				this->fine_due+=((curr_time-time_rented-604800)/604800)*500;
+				this->customer_record-=((curr_time-time_rented-604800)/604800)*0.1;
+				this->customer_record=max(this->customer_record,0.0);
 				success = 1;
 				
 				return id;
@@ -327,37 +318,8 @@ class Employee : public User{
 					continue;
 				}
 				
-				bool day_success=0;
-				
-				string sdays="";
-				while(!day_success){
-					cout<<"Enter days after which you are returning the car.\n\n";
-					cin>>sdays;
-					
-					if(sdays=="q"){
-						exit=1;
-						return -1;
-					}
-					
-					bool valid = 1;
-					for(int i=0;i<sdays.size();i++){
-						if((int)sdays[i]<48 || (int)sdays[i]>57){
-							valid=0;
-							break;
-						}
-					}
-					
-					if(!valid){
-						cout<<"Invalid number of days.\n\n";
-						continue;
-					}
-					
-					day_success=1;
-				}
-				
-				for(int i=0;i<sdays.size();i++){
-					days=(10*days)+(sdays[i]-48);
-				}
+				time_t curr_time = time(NULL);
+				time_t time_rented = 0;
 				
 				ifstream Database;
 				Database.open("car_database.txt");
@@ -385,6 +347,7 @@ class Employee : public User{
 					string tprice="";
 					string ttype_of_owner="NA";
 					string towner_name="NA";
+					string ttime="";
 
 					for(i=0;i<ind1;i++){
 						lid+=line[i];
@@ -417,9 +380,29 @@ class Employee : public User{
 						tprice+=line[i];
 					}
 					
+					i++;
+					ind1=i;
+					
+					for(i=ind1;line[i]!='-';i++){
+					}
+					
+					i++;
+					ind1=i;
+					
+					for(i=ind1;line[i]!='-';i++){
+					}
+					
+					i++;
+					ind1=i;
+					
+					for(i=ind1;i<line.size();i++){
+						ttime+=line[i];
+					}
+					
 					if(lid==sid){
+						time_rented=string_to_long(ttime);
 						string tline="";						
-						tline+=lid+"-"+tmodel+"-"+tcondition+"-"+tavailability+"-"+tprice+"-"+ttype_of_owner+"-"+towner_name;
+						tline+=lid+"-"+tmodel+"-"+tcondition+"-"+tavailability+"-"+tprice+"-"+ttype_of_owner+"-"+towner_name+"-0";
 						lines.push_back(tline);
 					}
 					else{
@@ -444,11 +427,9 @@ class Employee : public User{
 				
 				this->cars_rented--;
 				this->id_cars_rented.erase(id);
-				if(days>7){
-					this->fine_due+=(days-7)*500;
-					this->employee_record-=(days-7)*0.1;
-					this->employee_record=max(this->employee_record,0.0);
-				}
+				this->fine_due+=((curr_time-time_rented-604800)/604800)*500;
+				this->employee_record-=((curr_time-time_rented-604800)/604800)*0.1;
+				this->employee_record=max(this->employee_record,0.0);
 				success = 1;
 				
 				return id;
@@ -476,7 +457,7 @@ class Car{
 		string type_of_owner;
 		string owner_name;
 		double price;
-		// time_t time_rented;
+		time_t time_rented;
 		
 		Car(string model,string condition,double price){
 			this->model=model;
@@ -486,7 +467,7 @@ class Car{
 			this->type_of_owner="NA";
 			this->owner_name="NA";
 			this->price=price;
-			// this->time_rented=0;
+			this->time_rented=0;
 			
 			car_count++;
 		}
@@ -694,6 +675,85 @@ bool update_car_status(int id,char role,string name){
 	ifstream Database;
 	Database.open("car_database.txt");
 	
+	if(role=='x' || role=='y'){
+		bool found=0;
+		string line;
+		vector<string> lines;
+		int line_number=0,wanted_line_number=-1,ind_in_vector=-1;
+		while(Database){
+			getline(Database,line);
+			lines.push_back(line);
+			line_number++;
+			
+			if(line.size()<2) continue;
+			
+			int ind1;
+			ind1=line.find("-");
+			string sid;
+			for(int i=0;i<ind1;i++){
+				sid+=line[i];
+			}
+			
+			int fid=0;
+			bool in=0;
+			for(int i=0;i<sid.size();i++){
+				if((int)sid[i]>=48 && (int)sid[i]<58){
+					fid = 10*fid + sid[i] - 48;
+					in=1;
+				}
+			}
+			
+			if(!in) continue;
+			if(fid==id){
+				wanted_line_number=line_number;
+				//Update car vector
+				for(int i=0;i<car.size();i++){
+					if(car[i].id==fid){
+						ind_in_vector=i;
+						car[i].availibity="Rented";
+						car[i].type_of_owner= (role == 'x' ? "Customer":"Employee");
+						car[i].owner_name=name;
+						car[i].time_rented=time(NULL);
+					}
+				}
+				
+				found=1;
+			}
+		}
+		
+		Database.close();
+		
+		if(!found) return 0;
+		else{
+			ofstream write_file;
+			write_file.open("car_database.txt");
+			
+			if(write_file.fail()){
+				cout<<"Error opening database. Returning...\n\n";
+				return 0;
+			}
+			
+			wanted_line_number--;
+			
+			for(int i=0;i<line_number;i++){
+				if(i!=wanted_line_number){
+					write_file << lines[i] << "\n";
+				}
+				else{
+					string temp="";
+					temp = temp + to_string(car[ind_in_vector].id) + "-" + car[ind_in_vector].model + "-" + car[ind_in_vector].condition + "-" + car[ind_in_vector].availibity + "-" + to_string(car[ind_in_vector].price) + "-" + car[ind_in_vector].type_of_owner + "-" + car[ind_in_vector].owner_name + "-" + to_string(car[ind_in_vector].time_rented) + "\n";
+					write_file << temp;
+				}
+			}
+			
+			write_file.close();
+			
+			return 1;
+		}
+		
+		return 1;
+	}
+	
 	for(int i=0;i<car.size();i++){
 		if(car[i].id==id && car[i].availibity=="Rented"){
 			return 0;
@@ -737,6 +797,7 @@ bool update_car_status(int id,char role,string name){
 					car[i].availibity="Rented";
 					car[i].type_of_owner= (role == 'c' ? "Customer":"Employee");
 					car[i].owner_name=name;
+					car[i].time_rented=time(NULL);
 				}
 			}
 			
@@ -764,7 +825,7 @@ bool update_car_status(int id,char role,string name){
 			}
 			else{
 				string temp="";
-				temp = temp + to_string(car[ind_in_vector].id) + "-" + car[ind_in_vector].model + "-" + car[ind_in_vector].condition + "-" + car[ind_in_vector].availibity + "-" + to_string(car[ind_in_vector].price) + "-" + car[ind_in_vector].type_of_owner + "-" + car[ind_in_vector].owner_name + "\n";
+				temp = temp + to_string(car[ind_in_vector].id) + "-" + car[ind_in_vector].model + "-" + car[ind_in_vector].condition + "-" + car[ind_in_vector].availibity + "-" + to_string(car[ind_in_vector].price) + "-" + car[ind_in_vector].type_of_owner + "-" + car[ind_in_vector].owner_name + "-" + to_string(car[ind_in_vector].time_rented) + "\n";
 				write_file << temp;
 			}
 		}
@@ -1016,7 +1077,7 @@ bool customer_func(){
 		cout<<"(Press 4) Clear your dues.\n";
 		cout<<"(Press 5) Rent an available Car.\n";
 		cout<<"(Press 6) Return a Car.\n";
-		cout<<"(Press q) Logout.\n";
+		cout<<"(Press q) Logout.\n\n";
 		cin>>input;
 		switch(input){
 			case '1':
@@ -1074,6 +1135,7 @@ bool customer_func(){
 							car[i].availibity="Available";
 							car[i].type_of_owner="NA";
 							car[i].owner_name="NA";
+							car[i].time_rented=0;
 							break;
 						}
 					}
@@ -1218,6 +1280,7 @@ bool employee_func(){
 							car[i].availibity="Available";
 							car[i].type_of_owner="NA";
 							car[i].owner_name="NA";
+							car[i].time_rented=0;
 							break;
 						}
 					}
@@ -1399,6 +1462,8 @@ void add(string type){
 		cout<<"Something went wrong :-O\n\n";
 		return;
 	}
+	
+	cout<<"\n\nSuccessfully added.\n";
 }
 
 //Update records
@@ -1542,8 +1607,11 @@ void update(string type){
 	}
 	else if(type=="customer"){
 		bool exists = 0;
+		vector<int> car_ids;
+		int wanted_ind = -1;
 		for(int i=0;i<cust.size();i++){
 			if(cust[i].id==id){
+				for(auto x:cust[i].id_cars_rented) car_ids.push_back(x.first);
 				exists=1;
 				break;
 			}
@@ -1601,6 +1669,7 @@ void update(string type){
 				cust[cust.size()-1].id_cars_rented=cust[ind].id_cars_rented;
 				cust[cust.size()-1].fine_due=cust[ind].fine_due;
 				swap(cust[cust.size()-1],cust[ind]);
+				wanted_ind = ind;
 				cust.pop_back();
 				string tline="";
 				tline+=to_string(cust[ind].id)+"-"+cust[ind].name+"-"+cust[ind].password+"-"+to_string(cust[ind].customer_record)+"-"+to_string(cust[ind].cars_rented)+"-"+to_string(cust[ind].fine_due);
@@ -1619,11 +1688,18 @@ void update(string type){
 			oDatabase << lines[i] << "\n";
 			
 		oDatabase.close();
+		
+		for(auto x:car_ids){
+			update_car_status(x,'x',cust[wanted_ind].name);
+		}
 	}
 	else if(type=="employee"){
 		bool exists = 0;
+		vector<int> car_ids;
+		int wanted_ind = -1;
 		for(int i=0;i<emp.size();i++){
 			if(emp[i].id==id){
+				for(auto x:emp[i].id_cars_rented) car_ids.push_back(x.first);
 				exists=1;
 				break;
 			}
@@ -1681,6 +1757,7 @@ void update(string type){
 				emp[emp.size()-1].id_cars_rented=emp[ind].id_cars_rented;
 				emp[emp.size()-1].fine_due=emp[ind].fine_due;
 				swap(emp[emp.size()-1],emp[ind]);
+				wanted_ind = ind;
 				emp.pop_back();
 				string tline="";
 				tline+=to_string(emp[ind].id)+"-"+emp[ind].name+"-"+emp[ind].password+"-"+to_string(emp[ind].employee_record)+"-"+to_string(emp[ind].cars_rented)+"-"+to_string(emp[ind].fine_due);
@@ -1699,11 +1776,17 @@ void update(string type){
 			oDatabase << lines[i] << "\n";
 			
 		oDatabase.close();
+		
+		for(auto x:car_ids){
+			update_car_status(x,'y',emp[wanted_ind].name);
+		}
 	}
 	else{
 		cout<<"Something went wrong :-O\n\n";
 		return;
 	}
+	
+	cout<<"\n\nSuccessfully updated.\n";
 }
 
 //Delete records
@@ -1927,6 +2010,8 @@ void del(string type){
 		cout<<"Something went wrong :-O\n";
 		return;
 	}
+	
+	cout<<"\n\nSuccessfully deleted.\n";
 }
 
 void search(string type){
@@ -2237,7 +2322,7 @@ int string_to_int(string s){
 	return val;
 }
 
-//Converts double to integer
+//Converts string to double
 double string_to_double(string s){
 	bool valid = 1;
 	int cnt = 0;
@@ -2273,6 +2358,26 @@ double string_to_double(string s){
 	return val;
 }
 
+//Converts string to long
+long int string_to_long(string s){
+	bool valid = 1;
+	for(int i=0;i<s.size();i++){
+		if((int)s[i]<48 || (int)s[i]>57){
+			valid=0;
+			break;
+		}
+	}
+	
+	if(!valid) return -1;
+	
+	long int val = 0LL;
+	for(int i=0;i<s.size();i++){
+		val = (10*val) + (s[i]-48);
+	}
+	
+	return val;
+}
+
 void load_cars(){
 	ifstream Database;
 	Database.open("car_database.txt");
@@ -2281,6 +2386,8 @@ void load_cars(){
 	vector<string> lines;
 	while(Database){
 		getline(Database,line);
+		
+		// cout<<line<<"\n";
 		
 		if(line.size()<2) continue;
 		
@@ -2324,27 +2431,27 @@ void load_cars(){
 		
 		i++;
 		ind=i;
-		for(i=ind;i<line.size();i++){
+		for(i=ind;;i++){
+			if(line[i]=='-') break;
 			sowner_name+=line[i];
 		}
 		
-		// i++;
-		// ind=i;
-		// for(i=ind;i<line.size();i++){
-		// 	stime+=line[i];
-		// }
+		i++;
+		ind=i;
+		for(i=ind;i<line.size();i++){
+			stime+=line[i];
+		}
 		
 		int id = string_to_int(sid);
 		double price = string_to_double(sprice);
-		// int time = string_to_int(stime);
-		// cout<<time<<"H\n";
+		long int litime = string_to_long(stime);
 		
 		Car New_Car(smodel,scondition,price);
 		New_Car.id = id;
 		New_Car.availibity = savailibility;
 		New_Car.type_of_owner = stype_of_owner;
 		New_Car.owner_name = sowner_name;
-		// New_Car.time_rented = time;
+		New_Car.time_rented = litime;
 		
 		car.push_back(New_Car);
 		
@@ -2577,8 +2684,6 @@ int main(){
 	
 	//Ask for user role
 	user_role();
-	
-	cin.get();
 	
 	return 0;
 }
